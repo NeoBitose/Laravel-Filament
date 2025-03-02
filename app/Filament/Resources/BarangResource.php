@@ -6,12 +6,15 @@ use App\Filament\Resources\BarangResource\Pages;
 use App\Filament\Resources\BarangResource\RelationManagers;
 use App\Models\Barang;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\TextColumn;
 
 class BarangResource extends Resource
 {
@@ -23,7 +26,16 @@ class BarangResource extends Resource
     {
         return $form
             ->schema([
-                //
+                TextInput::make('nama_barang'),
+                TextInput::make('kode_barang'),
+                TextInput::make('harga_barang'),
+                TextInput::make('stok_barang'),
+                Select::make('status_barang')
+                        ->options([
+                            'tersedia' => 'Tersedia',
+                            'diberhentikan' => 'Diberhentikan',
+                            'tidak tersedia' => 'Tidak Tersedia',
+                        ])
             ]);
     }
 
@@ -31,13 +43,26 @@ class BarangResource extends Resource
     {
         return $table
             ->columns([
-                //
+                TextColumn::make('nama_barang'),
+                TextColumn::make('kode_barang'),
+                TextColumn::make('harga_barang')
+                            ->money('IDR'),
+                TextColumn::make('stok_barang')
+                            ->suffix(' buah'),
+                TextColumn::make('status_barang')
+                            ->badge()
+                            ->color(fn (string $state): string => match ($state) {
+                                'tersedia' => 'success',
+                                'diberhentikan' => 'warning',
+                                'tidak tersedia' => 'gray',
+                            })
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
